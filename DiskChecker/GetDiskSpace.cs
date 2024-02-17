@@ -2,24 +2,26 @@ namespace DiskChecker;
 
 public class GetDiskSpace
 {
-    public long DiskSpace()
+    private static long GetDriveInfo(Func<DriveInfo, long> getFunc, string driveName)
     {
-        return GetTotalFreeSpace("C:\\");
-    }
-    
-    public GetDiskSpace()
-    {
-    }
-    
-    private long GetTotalFreeSpace(string driveName)
-    {
-        foreach (DriveInfo drive in DriveInfo.GetDrives())
+        // Loop through all the drives and return the executed function with the drive as a parameter
+        foreach (var drive in DriveInfo.GetDrives())
         {
             if (drive.IsReady && drive.Name == driveName)
             {
-                return drive.TotalFreeSpace;
+                return getFunc(drive);
             }
         }
         return -1;
+    }
+    
+    public static long GetSize(string driveName)
+    {
+        return GetDriveInfo((drive) => drive.TotalSize, driveName);
+    }
+    
+    public static long GetFreeSpace(string driveName)
+    {
+        return GetDriveInfo((drive) => drive.TotalFreeSpace, driveName);
     }
 }

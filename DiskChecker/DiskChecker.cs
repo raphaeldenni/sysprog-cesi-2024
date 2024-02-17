@@ -2,22 +2,25 @@ namespace DiskChecker;
 
 public class DiskChecker
 {
-    private GetDiskSpace GetDiskSpace;
-    private LogWriter LogWriter;
-    private DisplayDiskSpace DisplayDiskSpace;
+    private GetDiskSpace GetDiskSpace { get; set; }
+    private LogWriter LogWriter { get; set; }
+    private DisplayToUser DisplayToUser { get; set; }
     
-    public DiskChecker(int nSeconds)
+    public DiskChecker(string diskLetter, int nSeconds)
     {
         GetDiskSpace = new GetDiskSpace();
         LogWriter = new LogWriter();
-        DisplayDiskSpace = new DisplayDiskSpace();
+        DisplayToUser = new DisplayToUser();
 
         while (true)
         {
-            var diskSpace = GetDiskSpace.DiskSpace();
+            // Get the disk size and free space
+            var diskSize = GetDiskSpace.GetSize(diskLetter + ":\\");
+            var freeDiskSpace = GetDiskSpace.GetFreeSpace(diskLetter + ":\\");
             
-            //LogWriter.WriteLog(diskSpace);
-            //DisplayDiskSpace.Display(diskSpace);
+            // Write to the log file and display to the user
+            LogWriter.WriteLog(diskLetter, diskSize, freeDiskSpace);
+            DisplayToUser.Display(diskLetter, diskSize, freeDiskSpace);
             
             Thread.Sleep(nSeconds * 1000);
         }
