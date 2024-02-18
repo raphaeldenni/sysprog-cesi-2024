@@ -2,7 +2,7 @@ namespace DiskChecker;
 
 public class DiskChecker
 {
-    private GetDiskSpace GetDiskSpace { get; set; }
+    private DiskInfo DiskInfo { get; set; }
     private DisplayToUser DisplayToUser { get; set; }
     
     /**
@@ -13,14 +13,14 @@ public class DiskChecker
      */
     public DiskChecker(string diskLetter, int nSeconds)
     {
-        GetDiskSpace = new GetDiskSpace();
+        DiskInfo = new DiskInfo();
         DisplayToUser = new DisplayToUser();
 
         while (true)
         {
             // Get the disk size and free space
-            var diskSize = GetDiskSpace.GetSize(diskLetter + ":\\");
-            var freeDiskSpace = GetDiskSpace.GetFreeSpace(diskLetter + ":\\");
+            var diskSize = DiskInfo.GetSize(diskLetter + ":\\");
+            var freeDiskSpace = DiskInfo.GetFreeSpace(diskLetter + ":\\");
             
             if (diskSize == -1 || freeDiskSpace == -1)
             {

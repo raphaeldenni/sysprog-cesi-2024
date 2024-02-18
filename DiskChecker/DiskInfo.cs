@@ -1,6 +1,6 @@
 namespace DiskChecker;
 
-public class GetDiskSpace
+public class DiskInfo
 {
     /**
      * Get the drive information
@@ -9,7 +9,7 @@ public class GetDiskSpace
      * @param driveName The drive name
      * @return The drive information
      */
-    private static long GetDriveInfo(Func<DriveInfo, long> getFunc, string driveName)
+    private static long GetInfo(Func<DriveInfo, long> getFunc, string driveName)
     {
         // Loop through all the drives and return the executed function with the drive as a parameter
         foreach (var drive in DriveInfo.GetDrives())
@@ -30,7 +30,7 @@ public class GetDiskSpace
      */
     public static long GetSize(string driveName)
     {
-        return GetDriveInfo((drive) => drive.TotalSize, driveName);
+        return GetInfo((drive) => drive.TotalSize, driveName);
     }
     
     /**
@@ -41,6 +41,6 @@ public class GetDiskSpace
      */
     public static long GetFreeSpace(string driveName)
     {
-        return GetDriveInfo((drive) => drive.TotalFreeSpace, driveName);
+        return GetInfo((drive) => drive.TotalFreeSpace, driveName);
     }
 }
