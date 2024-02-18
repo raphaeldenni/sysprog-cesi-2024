@@ -3,7 +3,10 @@ namespace DiskChecker;
 public class LogWriter
 {
     private static LogWriter Instance { get; } = new LogWriter();
-
+    
+    /**
+     * The constructor for the LogWriter class
+     */
     private LogWriter()
     {
         // If LogWriter is already instantiated, throw an exception (Singleton pattern)
@@ -14,6 +17,13 @@ public class LogWriter
         }
     }
     
+    /**
+     * Write to the log file
+     * 
+     * @param diskLetter The disk letter
+     * @param diskSize The disk size
+     * @param freeDiskSpace The free disk space
+     */
     public static void WriteLog(string diskLetter, long diskSize, long freeDiskSpace)
     {
         // Build the path to the log file

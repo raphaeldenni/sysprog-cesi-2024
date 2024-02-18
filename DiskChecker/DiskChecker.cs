@@ -5,6 +5,12 @@ public class DiskChecker
     private GetDiskSpace GetDiskSpace { get; set; }
     private DisplayToUser DisplayToUser { get; set; }
     
+    /**
+     * The constructor for the DiskChecker class
+     * 
+     * @param diskLetter The disk letter
+     * @param nSeconds The number of seconds
+     */
     public DiskChecker(string diskLetter, int nSeconds)
     {
         GetDiskSpace = new GetDiskSpace();

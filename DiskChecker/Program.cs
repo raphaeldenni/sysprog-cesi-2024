@@ -1,6 +1,11 @@
 ﻿namespace DiskChecker;
 internal static class Program
 {
+    /**
+     * The main entry point for the application
+     * 
+     * @param args The command-line arguments
+     */
     private static void Main(string[] args)
     {
         if (args.Length is > 0 and < 3)
