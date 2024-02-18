@@ -11,6 +11,12 @@ Little school project to show main disk storage usage in C# .NET named DiskCheck
 
 Go to [Releases](https://github.com/raphaeldenni/sysprog-cesi-2024/releases/) and check the last version. Just download the executable or zip corresponding to your OS and launch it. You can also clone the repo and build the executable from source.
 
+### Diagrams
+
+![Git](https://github.com/raphaeldenni/sysprog-cesi-2024/tree/main/images/git-workflow-v1.png)
+
+![Use case](https://github.com/raphaeldenni/sysprog-cesi-2024/tree/main/images/use-case-v1.png)
+
 ### CLI
 
 #### Usage
@@ -25,6 +31,18 @@ Example:
 DiskChecker.exe c 2
 ```
 
+#### Structure
+
+![Sequencies](https://github.com/raphaeldenni/sysprog-cesi-2024/tree/main/images/sequency-v1.png)
+
+![Classes](https://github.com/raphaeldenni/sysprog-cesi-2024/tree/main/images/classes-v1.png)
+
 ### GUI (versions 2.0)
 
-DESCRIPTION
+#### Usage
+
+#### Structure
+
+![Sequencies]()
+
+![Classes]()
