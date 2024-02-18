@@ -2,6 +2,18 @@ namespace DiskChecker;
 
 public class LogWriter
 {
+    private static LogWriter Instance { get; } = new LogWriter();
+
+    private LogWriter()
+    {
+        // If LogWriter is already instantiated, throw an exception (Singleton pattern)
+        // This is to prevent multiple instances of LogWriter to write to the same log file
+        if (Instance != null)
+        {
+            throw new InvalidOperationException("LogWriter is already instantiated");
+        }
+    }
+    
     public static void WriteLog(string diskLetter, long diskSize, long freeDiskSpace)
     {
         // Build the path to the log file
