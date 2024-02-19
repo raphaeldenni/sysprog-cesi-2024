@@ -4,9 +4,10 @@ public class LogWriter
 {
     private static LogWriter Instance { get; } = new LogWriter();
     
-    /**
-     * The constructor for the LogWriter class
-     */
+    /// <summary>
+    /// The constructor for the LogWriter class
+    /// </summary>
+    /// <exception cref="InvalidOperationException"></exception>
     private LogWriter()
     {
         // If LogWriter is already instantiated, throw an exception (Singleton pattern)
@@ -17,13 +18,13 @@ public class LogWriter
         }
     }
     
-    /**
-     * Write to the log file
-     * 
-     * @param diskLetter The disk letter
-     * @param diskSize The disk size
-     * @param freeDiskSpace The free disk space
-     */
+    /// <summary>
+    /// Write to the log file
+    /// </summary>
+    /// <param name="diskLetter"> The disk letter </param>
+    /// <param name="diskSize"> The disk size </param>
+    /// <param name="freeDiskSpace"> The free disk space </param>
+    /// <exception cref="InvalidOperationException"></exception>
     public static void WriteLog(string diskLetter, long diskSize, long freeDiskSpace)
     {
         // Build the path to the log file

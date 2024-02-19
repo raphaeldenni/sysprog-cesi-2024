@@ -10,8 +10,17 @@ namespace DiskCheckerGUI;
 public partial class MainWindow : Window
 {
     private CancellationTokenSource _cts;
-    private Thread _diskCheckerThread;
+    private Task _diskCheckerTask;
     
+    private const string LogFolder = "DiskChecker";
+    private const string LogFile = "DiskChecker.log";
+
+    private readonly string _logPath;
+    private readonly FileSystemWatcher _logFileWatcher;
+    
+    /// <summary>
+    /// The constructor for the MainWindow class
+    /// </summary>
     public MainWindow()
     {
         InitializeComponent();
@@ -27,10 +36,98 @@ public partial class MainWindow : Window
         
         // Set the defaults
         _cts = new CancellationTokenSource();
-        _diskCheckerThread = new Thread(() => {});
+        _diskCheckerTask = new Task(() => {});
+        
+        // Build the path to the log file
+        var userEnv = Environment.SpecialFolder.UserProfile;
+        var userFolder = Environment.GetFolderPath(userEnv);
+        var logFolderPath = Path.Combine(userFolder, LogFolder);
+        
+        _logPath = Path.Combine(logFolderPath, LogFile);
+        
+        
+        // Initialize the FileSystemWatcher
+        // This will watch for changes to the log file and update the UI accordingly (Observer pattern)
+        _logFileWatcher = new FileSystemWatcher
+        {
+            Path = logFolderPath,
+            Filter = LogFile,
+            NotifyFilter = NotifyFilters.LastWrite
+        };
+
+        _logFileWatcher.Changed += OnChanged;
+        _logFileWatcher.EnableRaisingEvents = true;
+        
+        // Read the log file
+        ReadLogFile();
+    }
+    
+    /// <summary>
+    /// The event handler for the FileSystemWatcher
+    /// </summary>
+    /// <param name="sender"> The sender </param>
+    /// <param name="e"> The FileSystemEventArgs </param>
+    private void OnChanged(object sender, FileSystemEventArgs e)
+    {
+        // Use Dispatcher to update the UI from a non-UI thread
+        Dispatcher.Invoke(ReadLogFile);
     }
 
-    private void RunDiskChecker(CancellationToken token, long diskSize, long freeDiskSpace, string diskLetter, int nSeconds)
+    /// <summary>
+    /// The event handler for the RunButton
+    /// </summary>
+    /// <param name="sender"> The sender </param>
+    /// <param name="e"> The RoutedEventArgs </param>
+    private void RunButton_Click(object sender, RoutedEventArgs e)
+    {
+        // If the thread is still running, cancel it
+        if (_diskCheckerTask.Status == TaskStatus.Running)
+        {
+            _cts.Cancel();
+        }
+        
+        // Get the disk letter and the number of seconds
+        var diskLetter = DriveListBox.SelectedItem?.ToString()?.Remove(1) ?? "C";
+        var nSeconds = int.TryParse(SecondsTextBox.Text, out var result) && result >= 1 
+            ? result
+            : 1;
+        
+        // Get the disk size and free space
+        var diskSize = DiskChecker.DiskInfo.GetSize(diskLetter + ":\\");
+        var freeDiskSpace = DiskChecker.DiskInfo.GetFreeSpace(diskLetter + ":\\");
+        
+        // Start a new thread with a new CancellationTokenSource
+        _cts = new CancellationTokenSource();
+        _diskCheckerTask = new Task(() => 
+                RunDiskChecker(
+                    _cts.Token, diskSize, freeDiskSpace, diskLetter, nSeconds), 
+                _cts.Token);
+        
+        _diskCheckerTask.Start();
+    }
+    
+    /// <summary>
+    /// The event handler for the StopButton
+    /// </summary>
+    /// <param name="sender"> The sender </param>
+    /// <param name="e"> The RoutedEventArgs </param>
+    private void StopButton_Click(object sender, RoutedEventArgs e)
+    {
+        // Cancel the thread
+        _cts.Cancel();
+    }
+    
+    /// <summary>
+    /// The function to run DiskChecker
+    /// </summary>
+    /// <param name="token"> The CancellationToken </param>
+    /// <param name="diskSize"> The disk size </param>
+    /// <param name="freeDiskSpace"> The free disk space </param>
+    /// <param name="diskLetter"> The disk letter </param>
+    /// <param name="nSeconds"> The number of seconds </param>
+    /// <exception cref="InvalidOperationException"></exception>
+    private void RunDiskChecker(
+        CancellationToken token, long diskSize, long freeDiskSpace, string diskLetter, int nSeconds)
     {
         while (!token.IsCancellationRequested)
         {
@@ -45,52 +142,13 @@ public partial class MainWindow : Window
         }
     }
     
+    /// <summary>
+    /// The function to read the log file
+    /// </summary>
     private void ReadLogFile()
     {
-        // Build the path to the log file
-        var userEnv = Environment.SpecialFolder.UserProfile;
-        var userFolder = Environment.GetFolderPath(userEnv);
-        var logPath = Path.Combine(userFolder, "DiskChecker", "DiskChecker.log");
-        
         // Use a StreamReader to read the log file
-        using var reader = new StreamReader(logPath);
-        LogFileTextBox.Text = File.Exists(logPath) ? reader.ReadToEnd() : "No log file found";
-    }
-
-    private void RunButton_Click(object sender, RoutedEventArgs e)
-    {
-        // If the thread is still running, cancel it
-        if (_diskCheckerThread.IsAlive)
-        {
-            _cts.Cancel();
-        }
-        
-        // Get the disk letter and the number of seconds
-        var diskLetter = DriveListBox.SelectedItem.ToString()?.Remove(1) ?? "C";
-        var nSeconds = int.Parse(
-            SecondsTextBox.Text == "" 
-                ? "1" 
-                : SecondsTextBox.Text);
-        
-        // Make sure the number of seconds is at least 1
-        if (nSeconds < 1)
-        {
-            nSeconds = 1;
-        }
-        
-        // Get the disk size and free space
-        var diskSize = DiskChecker.DiskInfo.GetSize(diskLetter + ":\\");
-        var freeDiskSpace = DiskChecker.DiskInfo.GetFreeSpace(diskLetter + ":\\");
-        
-        // Start a new thread with a new CancellationTokenSource
-        _cts = new CancellationTokenSource();
-        _diskCheckerThread = new Thread(() => RunDiskChecker(_cts.Token, diskSize, freeDiskSpace, diskLetter, nSeconds));
-        _diskCheckerThread.Start();
-    }
-    
-    private void StopButton_Click(object sender, RoutedEventArgs e)
-    {
-        // Cancel the thread
-        _cts.Cancel();
+        using var reader = new StreamReader(_logPath);
+        LogFileTextBox.Text = File.Exists(_logPath) ? reader.ReadToEnd() : "No log file found";
     }
 }

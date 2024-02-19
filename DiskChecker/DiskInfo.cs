@@ -2,13 +2,12 @@ namespace DiskChecker;
 
 public class DiskInfo
 {
-    /**
-     * Get the drive information
-     * 
-     * @param getFunc The function to execute
-     * @param driveName The drive name
-     * @return The drive information
-     */
+    /// <summary>
+    /// Get the drive information
+    /// </summary>
+    /// <param name="getFunc"> The function to execute </param>
+    /// <param name="driveName"> The drive name </param>
+    /// <returns> The drive information </returns>
     private static long GetInfo(Func<DriveInfo, long> getFunc, string driveName)
     {
         // Loop through all the drives and return the executed function with the drive as a parameter
@@ -22,23 +21,21 @@ public class DiskInfo
         return -1;
     }
     
-    /**
-     * Get the size of the drive
-     * 
-     * @param driveName The drive name
-     * @return The size of the drive
-     */
+    /// <summary>
+    /// Get the size of the drive
+    /// </summary>
+    /// <param name="driveName"></param>
+    /// <returns> The size of the drive </returns>
     public static long GetSize(string driveName)
     {
         return GetInfo((drive) => drive.TotalSize, driveName);
     }
     
-    /**
-     * Get the free space of the drive
-     * 
-     * @param driveName The drive name
-     * @return The free space of the drive
-     */
+    /// <summary>
+    /// Get the free space of the drive
+    /// </summary>
+    /// <param name="driveName"></param>
+    /// <returns> The free space of the drive </returns>
     public static long GetFreeSpace(string driveName)
     {
         return GetInfo((drive) => drive.TotalFreeSpace, driveName);
