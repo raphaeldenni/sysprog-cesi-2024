@@ -26,10 +26,17 @@ public partial class MainWindow : Window
 
     private void RunDiskChecker()
     {
-        var diskLetter = DriveListBox.SelectedItem.ToString()?.ToUpper() ?? throw new InvalidOperationException();
-        var nSeconds = int.Parse(SecondsTextBox.Text);
+        var diskLetter = DriveListBox.SelectedItem.ToString()?.Remove(1) ?? "C";
+        var nSeconds = int.Parse(
+            SecondsTextBox.Text == "" 
+                ? "1" 
+                : SecondsTextBox.Text);
         
-
+        if (nSeconds < 1)
+        {
+            nSeconds = 1;
+        }
+        
         var diskChecker = new DiskChecker.DiskChecker(diskLetter, nSeconds);
     }
     
