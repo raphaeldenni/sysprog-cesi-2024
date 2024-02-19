@@ -12,6 +12,9 @@ public partial class MainWindow : Window
     private CancellationTokenSource _cts;
     private Thread _diskCheckerThread;
     
+    private const string LogFolder = "DiskChecker";
+    private const string LogFile = "DiskChecker.log";
+        
     private readonly string _logPath;
     private readonly FileSystemWatcher _logFileWatcher;
     
@@ -35,14 +38,14 @@ public partial class MainWindow : Window
         // Build the path to the log file
         var userEnv = Environment.SpecialFolder.UserProfile;
         var userFolder = Environment.GetFolderPath(userEnv);
-        _logPath = Path.Combine(userFolder, "DiskChecker", "DiskChecker.log");
-
+        _logPath = Path.Combine(userFolder, LogFolder, LogFile);
+        
         
         // Initialize the FileSystemWatcher
         _logFileWatcher = new FileSystemWatcher
         {
             Path = Path.GetDirectoryName(_logPath) ?? throw new InvalidOperationException(),
-            Filter = Path.GetFileName(_logPath),
+            Filter = Path.GetFileName(_logPath) ?? throw new InvalidOperationException(),
             NotifyFilter = NotifyFilters.LastWrite
         };
 
