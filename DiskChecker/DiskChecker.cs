@@ -5,12 +5,12 @@ public class DiskChecker
     private DiskInfo DiskInfo { get; set; }
     private DisplayToUser DisplayToUser { get; set; }
     
-    /**
-     * The constructor for the DiskChecker class
-     * 
-     * @param diskLetter The disk letter
-     * @param nSeconds The number of seconds
-     */
+    /// <summary>
+    /// The constructor for the DiskChecker class
+    /// </summary>
+    /// <param name="diskLetter"> The disk letter </param>
+    /// <param name="nSeconds"> The number of seconds </param>
+    /// <exception cref="InvalidOperationException"></exception>
     public DiskChecker(string diskLetter, int nSeconds)
     {
         DiskInfo = new DiskInfo();

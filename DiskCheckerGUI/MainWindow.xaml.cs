@@ -18,6 +18,9 @@ public partial class MainWindow : Window
     private readonly string _logPath;
     private readonly FileSystemWatcher _logFileWatcher;
     
+    /// <summary>
+    /// The constructor for the MainWindow class
+    /// </summary>
     public MainWindow()
     {
         InitializeComponent();
@@ -59,12 +62,22 @@ public partial class MainWindow : Window
         ReadLogFile();
     }
     
+    /// <summary>
+    /// The event handler for the FileSystemWatcher
+    /// </summary>
+    /// <param name="sender"> The sender </param>
+    /// <param name="e"> The FileSystemEventArgs </param>
     private void OnChanged(object sender, FileSystemEventArgs e)
     {
         // Use Dispatcher to update the UI from a non-UI thread
         Dispatcher.Invoke(ReadLogFile);
     }
 
+    /// <summary>
+    /// The event handler for the RunButton
+    /// </summary>
+    /// <param name="sender"> The sender </param>
+    /// <param name="e"> The RoutedEventArgs </param>
     private void RunButton_Click(object sender, RoutedEventArgs e)
     {
         // If the thread is still running, cancel it
@@ -93,12 +106,26 @@ public partial class MainWindow : Window
         _diskCheckerTask.Start();
     }
     
+    /// <summary>
+    /// The event handler for the StopButton
+    /// </summary>
+    /// <param name="sender"> The sender </param>
+    /// <param name="e"> The RoutedEventArgs </param>
     private void StopButton_Click(object sender, RoutedEventArgs e)
     {
         // Cancel the thread
         _cts.Cancel();
     }
     
+    /// <summary>
+    /// The function to run DiskChecker
+    /// </summary>
+    /// <param name="token"> The CancellationToken </param>
+    /// <param name="diskSize"> The disk size </param>
+    /// <param name="freeDiskSpace"> The free disk space </param>
+    /// <param name="diskLetter"> The disk letter </param>
+    /// <param name="nSeconds"> The number of seconds </param>
+    /// <exception cref="InvalidOperationException"></exception>
     private void RunDiskChecker(
         CancellationToken token, long diskSize, long freeDiskSpace, string diskLetter, int nSeconds)
     {
@@ -115,6 +142,9 @@ public partial class MainWindow : Window
         }
     }
     
+    /// <summary>
+    /// The function to read the log file
+    /// </summary>
     private void ReadLogFile()
     {
         // Use a StreamReader to read the log file
