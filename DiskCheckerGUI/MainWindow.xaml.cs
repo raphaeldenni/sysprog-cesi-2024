@@ -10,11 +10,11 @@ namespace DiskCheckerGUI;
 public partial class MainWindow : Window
 {
     private CancellationTokenSource _cts;
-    private Thread _diskCheckerThread;
+    private Task _diskCheckerTask;
     
     private const string LogFolder = "DiskChecker";
     private const string LogFile = "DiskChecker.log";
-        
+
     private readonly string _logPath;
     private readonly FileSystemWatcher _logFileWatcher;
     
@@ -33,19 +33,22 @@ public partial class MainWindow : Window
         
         // Set the defaults
         _cts = new CancellationTokenSource();
-        _diskCheckerThread = new Thread(() => {});
+        _diskCheckerTask = new Task(() => {});
         
         // Build the path to the log file
         var userEnv = Environment.SpecialFolder.UserProfile;
         var userFolder = Environment.GetFolderPath(userEnv);
-        _logPath = Path.Combine(userFolder, LogFolder, LogFile);
+        var logFolderPath = Path.Combine(userFolder, LogFolder);
+        
+        _logPath = Path.Combine(logFolderPath, LogFile);
         
         
         // Initialize the FileSystemWatcher
+        // This will watch for changes to the log file and update the UI accordingly (Observer pattern)
         _logFileWatcher = new FileSystemWatcher
         {
-            Path = Path.GetDirectoryName(_logPath) ?? throw new InvalidOperationException(),
-            Filter = Path.GetFileName(_logPath) ?? throw new InvalidOperationException(),
+            Path = logFolderPath,
+            Filter = LogFile,
             NotifyFilter = NotifyFilters.LastWrite
         };
 
@@ -65,7 +68,7 @@ public partial class MainWindow : Window
     private void RunButton_Click(object sender, RoutedEventArgs e)
     {
         // If the thread is still running, cancel it
-        if (_diskCheckerThread.IsAlive)
+        if (_diskCheckerTask.Status == TaskStatus.Running)
         {
             _cts.Cancel();
         }
@@ -82,8 +85,8 @@ public partial class MainWindow : Window
         
         // Start a new thread with a new CancellationTokenSource
         _cts = new CancellationTokenSource();
-        _diskCheckerThread = new Thread(() => RunDiskChecker(_cts.Token, diskSize, freeDiskSpace, diskLetter, nSeconds));
-        _diskCheckerThread.Start();
+        _diskCheckerTask = new Task(() => RunDiskChecker(_cts.Token, diskSize, freeDiskSpace, diskLetter, nSeconds));
+        _diskCheckerTask.Start();
     }
     
     private void StopButton_Click(object sender, RoutedEventArgs e)
