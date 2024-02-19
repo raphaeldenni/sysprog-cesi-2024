@@ -2,7 +2,7 @@
 using System.Data;
 using System.Windows;
 
-namespace DiskCheckerGUI;
+namespace LogViewer;
 
 /// <summary>
 /// Interaction logic for App.xaml
