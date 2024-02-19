@@ -3,7 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Win32;
 
-namespace LogViewer;
+namespace DiskCheckerGUI;
 
 /// <summary>
 /// Interaction logic for MainWindow.xaml
