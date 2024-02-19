@@ -30,27 +30,10 @@ public partial class MainWindow : Window
         _diskCheckerThread = new Thread(() => {});
     }
 
-    private void RunDiskChecker(CancellationToken token)
+    private void RunDiskChecker(CancellationToken token, long diskSize, long freeDiskSpace, string diskLetter, int nSeconds)
     {
-        // Get the disk letter and the number of seconds
-        var diskLetter = DriveListBox.SelectedItem.ToString()?.Remove(1) ?? "C";
-        var nSeconds = int.Parse(
-            SecondsTextBox.Text == "" 
-                ? "1" 
-                : SecondsTextBox.Text);
-        
-        // Make sure the number of seconds is at least 1
-        if (nSeconds < 1)
-        {
-            nSeconds = 1;
-        }
-        
         while (!token.IsCancellationRequested)
         {
-            // Get the disk size and free space
-            var diskSize = DiskChecker.DiskInfo.GetSize(diskLetter + ":\\");
-            var freeDiskSpace = DiskChecker.DiskInfo.GetFreeSpace(diskLetter + ":\\");
-            
             if (diskSize == -1 || freeDiskSpace == -1)
             {
                 throw new InvalidOperationException("Invalid disk letter");
@@ -76,15 +59,32 @@ public partial class MainWindow : Window
 
     private void RunButton_Click(object sender, RoutedEventArgs e)
     {
-        // If the thread is still running, cancel it (Singleton pattern)
+        // If the thread is still running, cancel it
         if (_diskCheckerThread.IsAlive)
         {
             _cts.Cancel();
         }
         
+        // Get the disk letter and the number of seconds
+        var diskLetter = DriveListBox.SelectedItem.ToString()?.Remove(1) ?? "C";
+        var nSeconds = int.Parse(
+            SecondsTextBox.Text == "" 
+                ? "1" 
+                : SecondsTextBox.Text);
+        
+        // Make sure the number of seconds is at least 1
+        if (nSeconds < 1)
+        {
+            nSeconds = 1;
+        }
+        
+        // Get the disk size and free space
+        var diskSize = DiskChecker.DiskInfo.GetSize(diskLetter + ":\\");
+        var freeDiskSpace = DiskChecker.DiskInfo.GetFreeSpace(diskLetter + ":\\");
+        
         // Start a new thread with a new CancellationTokenSource
         _cts = new CancellationTokenSource();
-        _diskCheckerThread = new Thread(() => RunDiskChecker(_cts.Token));
+        _diskCheckerThread = new Thread(() => RunDiskChecker(_cts.Token, diskSize, freeDiskSpace, diskLetter, nSeconds));
         _diskCheckerThread.Start();
     }
     
