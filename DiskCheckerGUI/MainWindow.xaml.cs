@@ -12,6 +12,9 @@ public partial class MainWindow : Window
     private CancellationTokenSource _cts;
     private Thread _diskCheckerThread;
     
+    private readonly string _logPath;
+    private readonly FileSystemWatcher _logFileWatcher;
+    
     public MainWindow()
     {
         InitializeComponent();
@@ -28,33 +31,29 @@ public partial class MainWindow : Window
         // Set the defaults
         _cts = new CancellationTokenSource();
         _diskCheckerThread = new Thread(() => {});
-    }
-
-    private void RunDiskChecker(CancellationToken token, long diskSize, long freeDiskSpace, string diskLetter, int nSeconds)
-    {
-        while (!token.IsCancellationRequested)
-        {
-            if (diskSize == -1 || freeDiskSpace == -1)
-            {
-                throw new InvalidOperationException("Invalid disk letter");
-            }
-            
-            DiskChecker.LogWriter.WriteLog(diskLetter, diskSize, freeDiskSpace);
-            
-            Thread.Sleep(nSeconds * 1000);
-        }
-    }
-    
-    private void ReadLogFile()
-    {
+        
         // Build the path to the log file
         var userEnv = Environment.SpecialFolder.UserProfile;
         var userFolder = Environment.GetFolderPath(userEnv);
-        var logPath = Path.Combine(userFolder, "DiskChecker", "DiskChecker.log");
+        _logPath = Path.Combine(userFolder, "DiskChecker", "DiskChecker.log");
+
         
-        // Use a StreamReader to read the log file
-        using var reader = new StreamReader(logPath);
-        LogFileTextBox.Text = File.Exists(logPath) ? reader.ReadToEnd() : "No log file found";
+        // Initialize the FileSystemWatcher
+        _logFileWatcher = new FileSystemWatcher
+        {
+            Path = Path.GetDirectoryName(_logPath) ?? throw new InvalidOperationException(),
+            Filter = Path.GetFileName(_logPath),
+            NotifyFilter = NotifyFilters.LastWrite
+        };
+
+        _logFileWatcher.Changed += OnChanged;
+        _logFileWatcher.EnableRaisingEvents = true;
+    }
+    
+    private void OnChanged(object sender, FileSystemEventArgs e)
+    {
+        // Use Dispatcher to update the UI from a non-UI thread
+        Dispatcher.Invoke(ReadLogFile);
     }
 
     private void RunButton_Click(object sender, RoutedEventArgs e)
@@ -92,5 +91,27 @@ public partial class MainWindow : Window
     {
         // Cancel the thread
         _cts.Cancel();
+    }
+    
+    private void RunDiskChecker(CancellationToken token, long diskSize, long freeDiskSpace, string diskLetter, int nSeconds)
+    {
+        while (!token.IsCancellationRequested)
+        {
+            if (diskSize == -1 || freeDiskSpace == -1)
+            {
+                throw new InvalidOperationException("Invalid disk letter");
+            }
+            
+            DiskChecker.LogWriter.WriteLog(diskLetter, diskSize, freeDiskSpace);
+            
+            Thread.Sleep(nSeconds * 1000);
+        }
+    }
+    
+    private void ReadLogFile()
+    {
+        // Use a StreamReader to read the log file
+        using var reader = new StreamReader(_logPath);
+        LogFileTextBox.Text = File.Exists(_logPath) ? reader.ReadToEnd() : "No log file found";
     }
 }
