@@ -87,4 +87,10 @@ public partial class MainWindow : Window
         _diskCheckerThread = new Thread(() => RunDiskChecker(_cts.Token));
         _diskCheckerThread.Start();
     }
+    
+    private void StopButton_Click(object sender, RoutedEventArgs e)
+    {
+        // Cancel the thread
+        _cts.Cancel();
+    }
 }
