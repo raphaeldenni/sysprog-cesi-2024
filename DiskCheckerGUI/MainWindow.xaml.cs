@@ -85,7 +85,11 @@ public partial class MainWindow : Window
         
         // Start a new thread with a new CancellationTokenSource
         _cts = new CancellationTokenSource();
-        _diskCheckerTask = new Task(() => RunDiskChecker(_cts.Token, diskSize, freeDiskSpace, diskLetter, nSeconds));
+        _diskCheckerTask = new Task(() => 
+                RunDiskChecker(
+                    _cts.Token, diskSize, freeDiskSpace, diskLetter, nSeconds), 
+                _cts.Token);
+        
         _diskCheckerTask.Start();
     }
     
@@ -95,7 +99,8 @@ public partial class MainWindow : Window
         _cts.Cancel();
     }
     
-    private void RunDiskChecker(CancellationToken token, long diskSize, long freeDiskSpace, string diskLetter, int nSeconds)
+    private void RunDiskChecker(
+        CancellationToken token, long diskSize, long freeDiskSpace, string diskLetter, int nSeconds)
     {
         while (!token.IsCancellationRequested)
         {
