@@ -51,6 +51,9 @@ public partial class MainWindow : Window
 
         _logFileWatcher.Changed += OnChanged;
         _logFileWatcher.EnableRaisingEvents = true;
+        
+        // Read the log file
+        ReadLogFile();
     }
     
     private void OnChanged(object sender, FileSystemEventArgs e)
@@ -68,17 +71,10 @@ public partial class MainWindow : Window
         }
         
         // Get the disk letter and the number of seconds
-        var diskLetter = DriveListBox.SelectedItem.ToString()?.Remove(1) ?? "C";
-        var nSeconds = int.Parse(
-            SecondsTextBox.Text == "" 
-                ? "1" 
-                : SecondsTextBox.Text);
-        
-        // Make sure the number of seconds is at least 1
-        if (nSeconds < 1)
-        {
-            nSeconds = 1;
-        }
+        var diskLetter = DriveListBox.SelectedItem?.ToString()?.Remove(1) ?? "C";
+        var nSeconds = int.TryParse(SecondsTextBox.Text, out var result) && result >= 1 
+            ? result
+            : 1;
         
         // Get the disk size and free space
         var diskSize = DiskChecker.DiskInfo.GetSize(diskLetter + ":\\");
