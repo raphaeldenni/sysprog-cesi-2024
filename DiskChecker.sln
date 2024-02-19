@@ -1,6 +1,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiskChecker", "DiskChecker\DiskChecker.csproj", "{190EA815-96DB-4BEF-9FDA-B3786D32083A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiskCheckerGUI", "DiskCheckerGUI\DiskCheckerGUI.csproj", "{2225DC4C-352C-4DDC-8E8D-077E0F940C34}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -11,5 +13,9 @@ Global
 		{190EA815-96DB-4BEF-9FDA-B3786D32083A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{190EA815-96DB-4BEF-9FDA-B3786D32083A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{190EA815-96DB-4BEF-9FDA-B3786D32083A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2225DC4C-352C-4DDC-8E8D-077E0F940C34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2225DC4C-352C-4DDC-8E8D-077E0F940C34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2225DC4C-352C-4DDC-8E8D-077E0F940C34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2225DC4C-352C-4DDC-8E8D-077E0F940C34}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
