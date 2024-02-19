@@ -41,6 +41,6 @@ public class LogWriter
         
         // Use a StreamWriter to append a new line to the log file
         using var writer = new StreamWriter(logPath, true);
-        writer.WriteLine($"Disk space on {diskLetter}: {freeDiskSpace} / {diskSize} bytes at {DateTime.Now}");
+        writer.WriteLine($"{DateTime.Now} Disk space on {diskLetter}: {freeDiskSpace} / {diskSize} bytes");
     }
 }

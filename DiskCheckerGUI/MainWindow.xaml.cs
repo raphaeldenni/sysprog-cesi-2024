@@ -45,7 +45,6 @@ public partial class MainWindow : Window
         
         _logPath = Path.Combine(logFolderPath, LogFile);
         
-        
         // Initialize the FileSystemWatcher
         // This will watch for changes to the log file and update the UI accordingly (Observer pattern)
         _logFileWatcher = new FileSystemWatcher
@@ -85,6 +84,8 @@ public partial class MainWindow : Window
         {
             _cts.Cancel();
         }
+        
+        // Here we reuse the RunDiskChecker function from DiskChecker.cs (Bridge pattern)
         
         // Get the disk letter and the number of seconds
         var diskLetter = DriveListBox.SelectedItem?.ToString()?.Remove(1) ?? "C";
@@ -150,5 +151,7 @@ public partial class MainWindow : Window
         // Use a StreamReader to read the log file
         using var reader = new StreamReader(_logPath);
         LogFileTextBox.Text = File.Exists(_logPath) ? reader.ReadToEnd() : "No log file found";
+        
+        LogFileTextBox.ScrollToEnd();
     }
 }

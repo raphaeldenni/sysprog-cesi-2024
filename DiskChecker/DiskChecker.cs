@@ -5,6 +5,7 @@ public class DiskChecker
     private DiskInfo DiskInfo { get; set; }
     private DisplayToUser DisplayToUser { get; set; }
     
+    
     /// <summary>
     /// The constructor for the DiskChecker class
     /// </summary>
@@ -15,8 +16,16 @@ public class DiskChecker
     {
         DiskInfo = new DiskInfo();
         DisplayToUser = new DisplayToUser();
+        
+        var cts = new CancellationTokenSource();
 
-        while (true)
+        var task = new Task(() => LoopRunner(diskLetter, nSeconds, cts.Token));
+        task.Start();
+    }
+    
+    private static void LoopRunner (string diskLetter, int nSeconds, CancellationToken token)
+    {
+        while (!token.IsCancellationRequested)
         {
             // Get the disk size and free space
             var diskSize = DiskInfo.GetSize(diskLetter + ":\\");
