@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 using static DiskCheckerGUI.LoopRunner;
 using static DiskCheckerGUI.LogReader;
 
@@ -101,15 +102,22 @@ public partial class MainWindow : Window
             _cts.Cancel();
         }
         
-        var elements = new List<UIElement>
-        {
-            DriveListBox,
-            SecondsTextBox
-        };
+        // Here we reuse the RunDiskChecker functions from DiskChecker (Bridge pattern)
+        
+        // Get the disk letter and the number of seconds
+        var diskLetter = DriveListBox.SelectedItem?.ToString()?.Remove(1) ?? "C";
+        var nSeconds = int.TryParse(SecondsTextBox.Text, out var result) && result >= 1 
+            ? result
+            : 1;
+        
+        // Get the disk size and free space
+        var diskSize = DiskChecker.DiskInfo.GetSize(diskLetter + ":\\");
+        var freeDiskSpace = DiskChecker.DiskInfo.GetFreeSpace(diskLetter + ":\\");
         
         // Start a new thread with a new CancellationTokenSource
         _cts = new CancellationTokenSource();
-        _diskCheckerTask = new Task(() => RunLoop(_cts.Token, _logPath, elements), _cts.Token);
+        _diskCheckerTask = new Task(
+            () => RunLoop(_cts.Token, _logPath, diskSize, freeDiskSpace, diskLetter, nSeconds), _cts.Token);
         
         Dispatcher.Invoke(() => _diskCheckerTask.Start());
     }

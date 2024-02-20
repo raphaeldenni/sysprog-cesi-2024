@@ -1,7 +1,4 @@
-﻿using System.Windows;
-using System.Windows.Controls;
-
-namespace DiskCheckerGUI;
+﻿namespace DiskCheckerGUI;
 
 public class LoopRunner
 {
@@ -19,30 +16,19 @@ public class LoopRunner
             throw new InvalidOperationException("LoopRunner is already instantiated");
         }
     }
-    
+
     /// <summary>
     /// The function to run DiskChecker
     /// </summary>
     /// <param name="token"> The CancellationToken </param>
     /// <param name="logPath"> The log path </param>
-    /// <param name="elements"> The UI elements </param>
-    public static void RunLoop(CancellationToken token, string logPath, List<UIElement> elements)
+    /// <param name="diskSize"> The disk size </param>
+    /// <param name="freeDiskSpace"> The free disk space </param>
+    /// <param name="diskLetter"> The disk letter </param>
+    /// <param name="nSeconds"> The number of seconds </param>
+    public static void RunLoop(
+        CancellationToken token, string logPath, long diskSize, long freeDiskSpace, string diskLetter, int nSeconds)
     {
-        // Here we reuse the RunDiskChecker functions from DiskChecker (Bridge pattern)
-        
-        var driveListBox = (ListBox) elements[0];
-        var secondsTextBox = (TextBox) elements[1];
-        
-        // Get the disk letter and the number of seconds
-        var diskLetter = driveListBox.SelectedItem?.ToString()?.Remove(1) ?? "C";
-        var nSeconds = int.TryParse(secondsTextBox.Text, out var result) && result >= 1 
-            ? result
-            : 1;
-        
-        // Get the disk size and free space
-        var diskSize = DiskChecker.DiskInfo.GetSize(diskLetter + ":\\");
-        var freeDiskSpace = DiskChecker.DiskInfo.GetFreeSpace(diskLetter + ":\\");
-        
         while (!token.IsCancellationRequested)
         {
             if (diskSize == -1 || freeDiskSpace == -1)
