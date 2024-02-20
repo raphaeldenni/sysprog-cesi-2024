@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Windows;
-using static DiskChecker.DiskChecker;
+using static DiskCheckerGUI.LoopRunner;
+using static DiskCheckerGUI.LogReader;
 
 namespace DiskCheckerGUI;
 
@@ -45,6 +46,17 @@ public partial class MainWindow : Window
         
         _logPath = Path.Combine(logFolderPath, LogFile);
         
+        // Create the directory if it doesn't exist
+        if (!Directory.Exists(logFolderPath))
+        {
+            Directory.CreateDirectory(logFolderPath);
+        }
+        
+        // Create the log file if it doesn't exist
+        if (!File.Exists(_logPath))
+        {
+            File.Create(_logPath).Close();
+        }
         
         // Initialize the FileSystemWatcher
         // This will watch for changes to the log file and update the UI accordingly (Observer pattern)
@@ -59,7 +71,10 @@ public partial class MainWindow : Window
         _logFileWatcher.EnableRaisingEvents = true;
         
         // Read the log file
-        ReadLogFile();
+        using var reader = new StreamReader(_logPath);
+        LogFileTextBox.Text = File.Exists(_logPath) ? reader.ReadToEnd() : "No log file found";
+        
+        LogFileTextBox.ScrollToEnd();
     }
     
     /// <summary>
@@ -69,8 +84,8 @@ public partial class MainWindow : Window
     /// <param name="e"> The FileSystemEventArgs </param>
     private void OnChanged(object sender, FileSystemEventArgs e)
     {
-        // Use Dispatcher to update the UI from a non-UI thread
-        Dispatcher.Invoke(ReadLogFile);
+        // Use Dispatcher to update the UI from a non-UI thread (Bridge pattern with LogReader.cs)
+        Dispatcher.Invoke(() => ReadLogFile(_logPath, LogFileTextBox));
     }
 
     /// <summary>
@@ -86,6 +101,8 @@ public partial class MainWindow : Window
             _cts.Cancel();
         }
         
+        // Here we reuse the RunDiskChecker functions from DiskChecker (Bridge pattern)
+        
         // Get the disk letter and the number of seconds
         var diskLetter = DriveListBox.SelectedItem?.ToString()?.Remove(1) ?? "C";
         var nSeconds = int.TryParse(SecondsTextBox.Text, out var result) && result >= 1 
@@ -98,12 +115,10 @@ public partial class MainWindow : Window
         
         // Start a new thread with a new CancellationTokenSource
         _cts = new CancellationTokenSource();
-        _diskCheckerTask = new Task(() => 
-                RunDiskChecker(
-                    _cts.Token, diskSize, freeDiskSpace, diskLetter, nSeconds), 
-                _cts.Token);
+        _diskCheckerTask = new Task(
+            () => RunLoop(_cts.Token, _logPath, diskSize, freeDiskSpace, diskLetter, nSeconds), _cts.Token);
         
-        _diskCheckerTask.Start();
+        Dispatcher.Invoke(() => _diskCheckerTask.Start());
     }
     
     /// <summary>
@@ -118,37 +133,10 @@ public partial class MainWindow : Window
     }
     
     /// <summary>
-    /// The function to run DiskChecker
+    /// The destructor for the MainWindow class
     /// </summary>
-    /// <param name="token"> The CancellationToken </param>
-    /// <param name="diskSize"> The disk size </param>
-    /// <param name="freeDiskSpace"> The free disk space </param>
-    /// <param name="diskLetter"> The disk letter </param>
-    /// <param name="nSeconds"> The number of seconds </param>
-    /// <exception cref="InvalidOperationException"></exception>
-    private void RunDiskChecker(
-        CancellationToken token, long diskSize, long freeDiskSpace, string diskLetter, int nSeconds)
+    ~MainWindow()
     {
-        while (!token.IsCancellationRequested)
-        {
-            if (diskSize == -1 || freeDiskSpace == -1)
-            {
-                throw new InvalidOperationException("Invalid disk letter");
-            }
-            
-            DiskChecker.LogWriter.WriteLog(diskLetter, diskSize, freeDiskSpace);
-            
-            Thread.Sleep(nSeconds * 1000);
-        }
-    }
-    
-    /// <summary>
-    /// The function to read the log file
-    /// </summary>
-    private void ReadLogFile()
-    {
-        // Use a StreamReader to read the log file
-        using var reader = new StreamReader(_logPath);
-        LogFileTextBox.Text = File.Exists(_logPath) ? reader.ReadToEnd() : "No log file found";
+        _cts.Cancel();
     }
 }

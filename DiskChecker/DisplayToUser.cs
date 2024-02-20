@@ -2,6 +2,8 @@ namespace DiskChecker;
 
 public class DisplayToUser
 {
+    //private static readonly object ConsoleLock = new object();
+    
     /// <summary>
     /// Ask the user if they want to continue
     /// </summary>
@@ -22,6 +24,10 @@ public class DisplayToUser
     /// <param name="freeDiskSpace"> The free disk space </param>
     public static void Display(string diskLetter, long diskSize, long freeDiskSpace)
     {
-        Console.WriteLine($"Disk space on {diskLetter}: {freeDiskSpace} / {diskSize} bytes");
+        //lock (ConsoleLock)
+        //{
+            Console.WriteLine($"Disk {diskLetter}: Size = {diskSize}, Free space = {freeDiskSpace}");
+            Console.Out.Flush();
+        //}
     }
 }

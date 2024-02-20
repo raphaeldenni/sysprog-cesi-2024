@@ -1,8 +1,12 @@
+using System.Diagnostics;
+
 namespace DiskChecker;
 
 public class LogWriter
 {
     private static LogWriter Instance { get; } = new LogWriter();
+    
+    private static object ConsoleLock { get; } = new object();
     
     /// <summary>
     /// The constructor for the LogWriter class
@@ -17,30 +21,23 @@ public class LogWriter
             throw new InvalidOperationException("LogWriter is already instantiated");
         }
     }
-    
+
     /// <summary>
     /// Write to the log file
     /// </summary>
+    /// <param name="logPath"> The log path </param>
     /// <param name="diskLetter"> The disk letter </param>
     /// <param name="diskSize"> The disk size </param>
     /// <param name="freeDiskSpace"> The free disk space </param>
     /// <exception cref="InvalidOperationException"></exception>
-    public static void WriteLog(string diskLetter, long diskSize, long freeDiskSpace)
+    public static void WriteLog(string logPath, string diskLetter, long diskSize, long freeDiskSpace)
     {
-        // Build the path to the log file
-        var userEnv = Environment.SpecialFolder.UserProfile;
-        var userFolder = Environment.GetFolderPath(userEnv);
-        var logPath = Path.Combine(userFolder, "DiskChecker", "DiskChecker.log");
-        
-        // Create the directory if it doesn't exist
-        if (!Directory.Exists(Path.GetDirectoryName(logPath)))
+        lock (ConsoleLock)
         {
-            var logDirectory = Path.GetDirectoryName(logPath) ?? throw new InvalidOperationException();
-            Directory.CreateDirectory(logDirectory);
+            // Use a StreamWriter to append a new line to the log file
+            Debug.Assert(logPath != null, nameof(logPath) + " != null");
+            using var writer = new StreamWriter(logPath, true);
+            writer.WriteLine($"{DateTime.Now} Disk space on {diskLetter}: {freeDiskSpace} / {diskSize} bytes");
         }
-        
-        // Use a StreamWriter to append a new line to the log file
-        using var writer = new StreamWriter(logPath, true);
-        writer.WriteLine($"Disk space on {diskLetter}: {freeDiskSpace} / {diskSize} bytes at {DateTime.Now}");
     }
 }
