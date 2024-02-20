@@ -154,4 +154,12 @@ public partial class MainWindow : Window
         
         LogFileTextBox.ScrollToEnd();
     }
+    
+    /// <summary>
+    /// The destructor for the MainWindow class
+    /// </summary>
+    ~MainWindow()
+    {
+        _cts.Cancel();
+    }
 }
