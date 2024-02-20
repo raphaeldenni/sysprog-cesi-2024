@@ -4,7 +4,9 @@ public class DiskChecker
 {
     private DiskInfo DiskInfo { get; set; }
     private DisplayToUser DisplayToUser { get; set; }
-   //private CancellationTokenSource Cts { get; set; }
+    
+    private const string LogFolder = "DiskChecker";
+    private const string LogFile = "DiskChecker.log";
     
     
     /// <summary>
@@ -17,7 +19,19 @@ public class DiskChecker
     {
         DiskInfo = new DiskInfo();
         DisplayToUser = new DisplayToUser();
-
+        
+        // Build the path to the log file
+        var userEnv = Environment.SpecialFolder.UserProfile;
+        var userFolder = Environment.GetFolderPath(userEnv);
+        var logFolderPath = Path.Combine(userFolder, LogFolder);
+        var logPath = Path.Combine(userFolder, LogFolder, LogFile);
+        
+        // Create the directory if it doesn't exist
+        if (!Directory.Exists(logFolderPath))
+        {
+            Directory.CreateDirectory(logFolderPath);
+        }
+        
         while (true)
         {
             // Get the disk size and free space
@@ -32,7 +46,7 @@ public class DiskChecker
             // Write to the log file and display to the user
             try
             {
-                LogWriter.WriteLog(diskLetter, diskSize, freeDiskSpace);
+                LogWriter.WriteLog(logPath, diskLetter, diskSize, freeDiskSpace);
             }
             catch
             {
@@ -48,52 +62,5 @@ public class DiskChecker
             
             Thread.Sleep(nSeconds * 1000);
         }
-        
-        //Cts = new CancellationTokenSource();
-        
-        //var task = new Task(() => LoopRunner(diskLetter, nSeconds, Cts.Token));
-        //task.Start();
-    }
-    
-    private static void LoopRunner (string diskLetter, int nSeconds, CancellationToken token)
-    {
-        while (!token.IsCancellationRequested)
-        {
-            // Get the disk size and free space
-            var diskSize = DiskInfo.GetSize(diskLetter + ":\\");
-            var freeDiskSpace = DiskInfo.GetFreeSpace(diskLetter + ":\\");
-            
-            if (diskSize == -1 || freeDiskSpace == -1)
-            {
-                throw new InvalidOperationException("Invalid disk letter");
-            }
-            
-            // Write to the log file and display to the user
-            try
-            {
-                LogWriter.WriteLog(diskLetter, diskSize, freeDiskSpace);
-            }
-            catch
-            {
-                var response = DisplayToUser.AskToContinue();
-                
-                if (response == "n")
-                {
-                    break;
-                }
-            }
-           
-            DisplayToUser.Display(diskLetter, diskSize, freeDiskSpace);
-            
-            Thread.Sleep(nSeconds * 1000);
-        }
-    }
-    
-    /// <summary>
-    ///  The destructor for the DiskChecker class
-    /// </summary>
-    ~DiskChecker()
-    {
-        //Cts.Cancel();
     }
 }

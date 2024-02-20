@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Windows;
-using static DiskChecker.DiskChecker;
+using static DiskCheckerGUI.LoopRunner;
+using static DiskCheckerGUI.LogReader;
 
 namespace DiskCheckerGUI;
 
@@ -58,7 +59,9 @@ public partial class MainWindow : Window
         _logFileWatcher.EnableRaisingEvents = true;
         
         // Read the log file
-        ReadLogFile();
+        using var reader = new StreamReader(_logPath);
+        LogFileTextBox.Text = File.Exists(_logPath) ? reader.ReadToEnd() : "No log file found";
+        LogFileTextBox.ScrollToEnd();
     }
     
     /// <summary>
@@ -68,8 +71,8 @@ public partial class MainWindow : Window
     /// <param name="e"> The FileSystemEventArgs </param>
     private void OnChanged(object sender, FileSystemEventArgs e)
     {
-        // Use Dispatcher to update the UI from a non-UI thread
-        Dispatcher.Invoke(ReadLogFile);
+        // Use Dispatcher to update the UI from a non-UI thread (Bridge pattern with LogReader.cs)
+        Dispatcher.Invoke(() => ReadLogFile(_logPath, LogFileTextBox));
     }
 
     /// <summary>
@@ -85,26 +88,15 @@ public partial class MainWindow : Window
             _cts.Cancel();
         }
         
-        // Here we reuse the RunDiskChecker function from DiskChecker.cs (Bridge pattern)
-        
-        // Get the disk letter and the number of seconds
-        var diskLetter = DriveListBox.SelectedItem?.ToString()?.Remove(1) ?? "C";
-        var nSeconds = int.TryParse(SecondsTextBox.Text, out var result) && result >= 1 
-            ? result
-            : 1;
-        
-        // Get the disk size and free space
-        var diskSize = DiskChecker.DiskInfo.GetSize(diskLetter + ":\\");
-        var freeDiskSpace = DiskChecker.DiskInfo.GetFreeSpace(diskLetter + ":\\");
+        var elements = new List<UIElement>
+        {
+            DriveListBox,
+            SecondsTextBox
+        };
         
         // Start a new thread with a new CancellationTokenSource
         _cts = new CancellationTokenSource();
-        _diskCheckerTask = new Task(() => 
-                RunDiskChecker(
-                    _cts.Token, diskSize, freeDiskSpace, diskLetter, nSeconds), 
-                _cts.Token);
-        
-        _diskCheckerTask.Start();
+        Dispatcher.Invoke(() => RunLoop(_cts.Token, _logPath, elements));
     }
     
     /// <summary>
@@ -116,43 +108,6 @@ public partial class MainWindow : Window
     {
         // Cancel the thread
         _cts.Cancel();
-    }
-    
-    /// <summary>
-    /// The function to run DiskChecker
-    /// </summary>
-    /// <param name="token"> The CancellationToken </param>
-    /// <param name="diskSize"> The disk size </param>
-    /// <param name="freeDiskSpace"> The free disk space </param>
-    /// <param name="diskLetter"> The disk letter </param>
-    /// <param name="nSeconds"> The number of seconds </param>
-    /// <exception cref="InvalidOperationException"></exception>
-    private void RunDiskChecker(
-        CancellationToken token, long diskSize, long freeDiskSpace, string diskLetter, int nSeconds)
-    {
-        while (!token.IsCancellationRequested)
-        {
-            if (diskSize == -1 || freeDiskSpace == -1)
-            {
-                throw new InvalidOperationException("Invalid disk letter");
-            }
-            
-            DiskChecker.LogWriter.WriteLog(diskLetter, diskSize, freeDiskSpace);
-            
-            Thread.Sleep(nSeconds * 1000);
-        }
-    }
-    
-    /// <summary>
-    /// The function to read the log file
-    /// </summary>
-    private void ReadLogFile()
-    {
-        // Use a StreamReader to read the log file
-        using var reader = new StreamReader(_logPath);
-        LogFileTextBox.Text = File.Exists(_logPath) ? reader.ReadToEnd() : "No log file found";
-        
-        LogFileTextBox.ScrollToEnd();
     }
     
     /// <summary>
