@@ -13,6 +13,7 @@ Go to [Releases](https://github.com/raphaeldenni/sysprog-cesi-2024/releases/) an
 
 ### Diagrams
 
+#### Git Workflow
 ![Git](/images/git-workflow-v1.png)
 
 ### CLI
@@ -31,9 +32,15 @@ DiskChecker.exe c 2
 
 #### Structure
 
+#### Use case
+
 ![Use case v1](/images/use-case-v1.png)
 
+#### Sequencies
+
 ![Sequencies v1](/images/sequency-v1.png)
+
+#### Classes
 
 ![Classes v1](/images/classes-v1.png)
 
@@ -62,8 +69,14 @@ DiskChecker.exe c 2
 
 #### Structure
 
+#### Use case
+
 ![Use case v2](/images/use-case-v2.png)
 
+#### Sequencies
+
 ![Sequencies v2](/images/sequency-v2.png)
+
+#### Classes
 
 ![Classes v2](/images/classes-v2.png)
