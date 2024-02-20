@@ -13,7 +13,7 @@ Go to [Releases](https://github.com/raphaeldenni/sysprog-cesi-2024/releases/) an
 
 ### Diagrams
 
-![Git](https://github.com/raphaeldenni/sysprog-cesi-2024/tree/main/images/git-workflow-v1.png)
+![Git](/images/git-workflow-v1.png)
 
 ### CLI
 
@@ -31,17 +31,17 @@ DiskChecker.exe c 2
 
 #### Structure
 
-![Use case](https://github.com/raphaeldenni/sysprog-cesi-2024/tree/main/images/use-case-v1.png)
+![Use case v1](/images/use-case-v1.png)
 
-![Sequencies](https://github.com/raphaeldenni/sysprog-cesi-2024/tree/main/images/sequency-v1.png)
+![Sequencies v1](/images/sequency-v1.png)
 
-![Classes](https://github.com/raphaeldenni/sysprog-cesi-2024/tree/main/images/classes-v1.png)
+![Classes v1](/images/classes-v1.png)
 
 ### GUI (versions 2.0)
 
 #### Usage
 
-![DiskCheckerGUI](https://github.com/raphaeldenni/sysprog-cesi-2024/tree/main/images/disk-checker.png)
+![DiskCheckerGUI](/images/disk-checker.png)
 
 1. Disk Selection area :
  - List all available disks
@@ -62,8 +62,8 @@ DiskChecker.exe c 2
 
 #### Structure
 
-![Use case](https://github.com/raphaeldenni/sysprog-cesi-2024/tree/main/images/use-case-v2.png)
+![Use case v2](/images/use-case-v2.png)
 
-![Sequencies](https://github.com/raphaeldenni/sysprog-cesi-2024/tree/main/images/sequency-v2.png)
+![Sequencies v2](/images/sequency-v2.png)
 
-![Classes](https://github.com/raphaeldenni/sysprog-cesi-2024/tree/main/images/classes-v2.png)
+![Classes v2](/images/classes-v2.png)
