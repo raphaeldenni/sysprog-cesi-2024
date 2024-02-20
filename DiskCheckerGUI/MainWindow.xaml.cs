@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using System.Windows;
-using System.Windows.Controls;
 using static DiskCheckerGUI.LoopRunner;
 using static DiskCheckerGUI.LogReader;
 
