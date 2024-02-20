@@ -11,7 +11,10 @@
 #
 name: "CodeQL"
 
-on: [push, pull_request]
+on: 
+  push:
+    paths-ignore:
+      - "DiskCheckerGUI/**"
 
 jobs:
   analyze:
