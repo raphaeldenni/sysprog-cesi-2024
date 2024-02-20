@@ -46,6 +46,18 @@ public partial class MainWindow : Window
         
         _logPath = Path.Combine(logFolderPath, LogFile);
         
+        // Create the directory if it doesn't exist
+        if (!Directory.Exists(logFolderPath))
+        {
+            Directory.CreateDirectory(logFolderPath);
+        }
+        
+        // Create the log file if it doesn't exist
+        if (!File.Exists(_logPath))
+        {
+            File.Create(_logPath).Close();
+        }
+        
         // Initialize the FileSystemWatcher
         // This will watch for changes to the log file and update the UI accordingly (Observer pattern)
         _logFileWatcher = new FileSystemWatcher
@@ -61,6 +73,7 @@ public partial class MainWindow : Window
         // Read the log file
         using var reader = new StreamReader(_logPath);
         LogFileTextBox.Text = File.Exists(_logPath) ? reader.ReadToEnd() : "No log file found";
+        
         LogFileTextBox.ScrollToEnd();
     }
     
@@ -96,7 +109,9 @@ public partial class MainWindow : Window
         
         // Start a new thread with a new CancellationTokenSource
         _cts = new CancellationTokenSource();
-        Dispatcher.Invoke(() => RunLoop(_cts.Token, _logPath, elements));
+        _diskCheckerTask = new Task(() => RunLoop(_cts.Token, _logPath, elements), _cts.Token);
+        
+        Dispatcher.Invoke(() => _diskCheckerTask.Start());
     }
     
     /// <summary>
